@@ -1,0 +1,135 @@
+{% extends "base.html" %}
+{% block title %}{{ ch.id }}: {{ ch.title }}{% endblock %}
+
+{% block content %}
+<div class="container-xl">
+  <div class="row g-4">
+
+    <!-- メインコンテンツ -->
+    <div class="col-lg-8">
+      <div class="d-flex align-items-center gap-3 mb-3 flex-wrap">
+        <a href="/challenges" class="btn btn-sm btn-outline-secondary">
+          <i class="bi bi-arrow-left me-1"></i>一覧へ
+        </a>
+        <span class="badge badge-{{ ch.level }}">{{ ch.level }}</span>
+        <h4 class="mb-0">{{ ch.id }}: {{ ch.title }}</h4>
+        {% if solved %}
+        <span class="badge fs-6" style="background:rgba(63,185,80,.2);color:#3fb950">
+          <i class="bi bi-check-circle-fill me-1"></i>Solved!
+        </span>
+        {% endif %}
+      </div>
+
+      <div class="card mb-3">
+        <div class="card-body md-content" id="ch-content">
+          {% if content %}{{ content }}{% else %}問題内容を読み込めませんでした。{% endif %}
+        </div>
+      </div>
+    </div>
+
+    <!-- フラグ提出 -->
+    <div class="col-lg-4">
+      <div class="card sticky-top" style="top:80px">
+        <div class="card-header">
+          <i class="bi bi-flag-fill text-cyan me-2"></i>フラグ提出
+        </div>
+        <div class="card-body">
+          <div class="mb-1 text-muted small">{{ ch.theme }}</div>
+          <div class="mb-3">
+            <span class="text-cyan fw-bold">{{ ch.points }}pt</span>
+            <span class="text-muted small ms-2">{{ ch.level }}</span>
+          </div>
+
+          {% if solved %}
+          <div class="alert alert-success py-2 small mb-3">
+            <i class="bi bi-trophy-fill me-1"></i>このチャレンジはクリア済みです！
+          </div>
+          {% endif %}
+
+          <div class="mb-3">
+            <label class="form-label small">フラグ</label>
+            <input type="text" class="form-control flag-input {% if solved %}flag-solved{% endif %}"
+                   id="flag-input" placeholder="ACD{...}"
+                   {% if solved %}disabled{% endif %}>
+          </div>
+          <button class="btn btn-cyber w-100" onclick="submitFlag('{{ ch.id }}')"
+                  {% if solved %}disabled{% endif %}>
+            <i class="bi bi-send me-1"></i>提出
+          </button>
+
+          <div id="flag-result" class="mt-3"></div>
+
+          <!-- ヒント -->
+          <div class="mt-4">
+            <button class="btn btn-sm btn-outline-secondary w-100" type="button"
+                    data-bs-toggle="collapse" data-bs-target="#hints">
+              <i class="bi bi-lightbulb me-1"></i>ヒントを見る
+            </button>
+            <div class="collapse mt-2" id="hints">
+              <div class="p-2 rounded small text-muted" style="background:#21262d;border:1px solid var(--border)">
+                {% if ch.id == 'B01' %}
+                <p>1. <code>hashes.txt</code> の各ハッシュを辞書攻撃してみましょう</p>
+                <p>2. MD5('password') を計算してみてください</p>
+                <code>python3 -c "import hashlib; print(hashlib.md5(b'password').hexdigest())"</code>
+                {% elif ch.id == 'B03' %}
+                <p>1. ログ解析ツールを使って攻撃を検出してください</p>
+                <p>2. SQLインジェクションを試みたIPを探してください</p>
+                <p>3. フラグ形式: <code>ACD{IPアドレス_SQLキーワード}</code></p>
+                {% elif ch.id == 'I03' %}
+                <p>1. ログ解析ツールでパストラバーサルを検出してください</p>
+                <p>2. <code>etc/passwd</code> にアクセスしたURLパラメータ名は？</p>
+                <p>3. フラグ形式: <code>ACD{パラメータ名_攻撃手法名}</code></p>
+                {% else %}
+                <p>READMEの問題をよく読んでください。</p>
+                {% endif %}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+const raw = document.getElementById("ch-content").textContent;
+document.getElementById("ch-content").innerHTML = renderMarkdown(raw);
+
+// Enterキーで提出
+document.getElementById("flag-input")?.addEventListener("keydown", e => {
+  if (e.key === "Enter") submitFlag("{{ ch.id }}");
+});
+
+async function submitFlag(chId) {
+  const flag = document.getElementById("flag-input").value.trim();
+  if (!flag) { showToast("フラグを入力してください", "error"); return; }
+
+  const res = await fetch(`/challenge/${chId}/submit`, {
+    method: "POST",
+    headers: {"Content-Type":"application/json"},
+    body: JSON.stringify({flag})
+  });
+  const data = await res.json();
+  const resultEl = document.getElementById("flag-result");
+
+  if (data.correct) {
+    resultEl.innerHTML = `<div class="alert py-2 small" style="background:rgba(63,185,80,.15);border:1px solid var(--green);color:var(--green)">
+      <i class="bi bi-trophy-fill me-1"></i>${data.message}<br>
+      <strong>合計: ${data.points}pt</strong>
+    </div>`;
+    document.getElementById("flag-input").classList.add("flag-solved");
+    updatePoints(data.points);
+    showToast(data.message, "success");
+    setTimeout(() => location.reload(), 1500);
+  } else {
+    resultEl.innerHTML = `<div class="alert py-2 small" style="background:rgba(248,81,73,.1);border:1px solid rgba(248,81,73,.3);color:var(--red)">
+      <i class="bi bi-x-circle me-1"></i>${data.message}
+    </div>`;
+    document.getElementById("flag-input").value = "";
+  }
+}
+</script>
+{% endblock %}

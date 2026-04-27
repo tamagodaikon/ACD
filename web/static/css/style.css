@@ -1,0 +1,205 @@
+:root {
+  --cyan: #00d4ff;
+  --dark-bg: #0d1117;
+  --card-bg: #161b22;
+  --border: #30363d;
+  --text: #c9d1d9;
+  --text-muted: #8b949e;
+  --green: #3fb950;
+  --red: #f85149;
+  --yellow: #d29922;
+}
+
+body {
+  background-color: var(--dark-bg);
+  color: var(--text);
+  font-family: 'Segoe UI', system-ui, sans-serif;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+main { flex: 1; }
+
+/* Navbar */
+.bg-dark-custom { background-color: #161b22 !important; border-bottom: 1px solid var(--border); }
+.text-cyan { color: var(--cyan) !important; }
+.bg-cyan { background-color: var(--cyan) !important; }
+.navbar-brand { font-size: 1.1rem; }
+
+/* Cards */
+.card {
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  color: var(--text);
+}
+.card:hover { border-color: var(--cyan); transition: border-color .2s; }
+.card-header { background: rgba(0,212,255,.08); border-bottom: 1px solid var(--border); }
+
+/* Stats */
+.stat-card {
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 1.5rem;
+  text-align: center;
+}
+.stat-number { font-size: 2.5rem; font-weight: 700; color: var(--cyan); }
+.stat-label { color: var(--text-muted); font-size: .875rem; }
+
+/* Progress */
+.progress { background: #21262d; height: 8px; border-radius: 4px; }
+.progress-bar { background: linear-gradient(90deg, var(--cyan), #0099cc); }
+
+/* Difficulty stars */
+.difficulty-1 { color: var(--green); }
+.difficulty-2 { color: var(--yellow); }
+.difficulty-3 { color: var(--red); }
+
+/* Lab card */
+.lab-card { cursor: pointer; transition: transform .15s; }
+.lab-card:hover { transform: translateY(-2px); }
+.lab-icon { font-size: 2rem; }
+.lab-completed { border-color: var(--green) !important; }
+
+/* Badge */
+.badge-beginner { background: rgba(63,185,80,.2); color: var(--green); border: 1px solid var(--green); }
+.badge-intermediate { background: rgba(210,153,34,.2); color: var(--yellow); border: 1px solid var(--yellow); }
+.badge-advanced { background: rgba(248,81,73,.2); color: var(--red); border: 1px solid var(--red); }
+
+/* Tool panels */
+.tool-panel {
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1.5rem;
+}
+.tool-output {
+  background: #0d1117;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 1rem;
+  font-family: 'Courier New', monospace;
+  font-size: .85rem;
+  min-height: 200px;
+  max-height: 500px;
+  overflow-y: auto;
+  color: #e6edf3;
+}
+.tool-output .ok { color: var(--green); }
+.tool-output .warn { color: var(--yellow); }
+.tool-output .err { color: var(--red); }
+.tool-output .info { color: var(--cyan); }
+
+/* Form controls */
+.form-control, .form-select {
+  background: #21262d;
+  border: 1px solid var(--border);
+  color: var(--text);
+}
+.form-control:focus, .form-select:focus {
+  background: #21262d;
+  border-color: var(--cyan);
+  color: var(--text);
+  box-shadow: 0 0 0 .2rem rgba(0,212,255,.15);
+}
+
+/* Buttons */
+.btn-cyber {
+  background: linear-gradient(135deg, #0099cc, var(--cyan));
+  color: #000;
+  font-weight: 600;
+  border: none;
+}
+.btn-cyber:hover { background: linear-gradient(135deg, var(--cyan), #00aadd); color: #000; }
+.btn-outline-cyber {
+  border: 1px solid var(--cyan);
+  color: var(--cyan);
+  background: transparent;
+}
+.btn-outline-cyber:hover { background: rgba(0,212,255,.1); color: var(--cyan); }
+
+/* Markdown content */
+.md-content h1, .md-content h2, .md-content h3 { color: var(--cyan); margin-top: 1.5rem; }
+.md-content h2 { border-bottom: 1px solid var(--border); padding-bottom: .5rem; }
+.md-content code {
+  background: #21262d;
+  color: #e6edf3;
+  padding: .15rem .4rem;
+  border-radius: 4px;
+  font-size: .875em;
+}
+.md-content pre {
+  background: #21262d;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 1rem;
+  overflow-x: auto;
+}
+.md-content pre code { background: none; padding: 0; }
+.md-content table { width: 100%; border-collapse: collapse; margin: 1rem 0; }
+.md-content th { background: #21262d; color: var(--cyan); padding: .5rem .75rem; text-align: left; }
+.md-content td { padding: .5rem .75rem; border-top: 1px solid var(--border); }
+.md-content blockquote {
+  border-left: 4px solid var(--yellow);
+  background: rgba(210,153,34,.1);
+  padding: .75rem 1rem;
+  border-radius: 0 6px 6px 0;
+  color: var(--text-muted);
+}
+.md-content a { color: var(--cyan); }
+.md-content ul li, .md-content ol li { margin: .25rem 0; }
+
+/* Grade badges */
+.grade-a { color: var(--green); font-size: 3rem; font-weight: 700; }
+.grade-b { color: var(--cyan); font-size: 3rem; font-weight: 700; }
+.grade-c { color: var(--yellow); font-size: 3rem; font-weight: 700; }
+.grade-d { color: var(--red); font-size: 3rem; font-weight: 700; }
+
+/* CTF flag input */
+.flag-input {
+  font-family: monospace;
+  letter-spacing: .05em;
+}
+.flag-solved { border-color: var(--green) !important; background: rgba(63,185,80,.1) !important; }
+
+/* Spinner */
+.spinner-cyber {
+  width: 20px; height: 20px;
+  border: 2px solid var(--border);
+  border-top-color: var(--cyan);
+  border-radius: 50%;
+  animation: spin .6s linear infinite;
+  display: inline-block;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* Toast */
+.toast { background: var(--card-bg); border: 1px solid var(--border); color: var(--text); }
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: var(--dark-bg); }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+/* Hero section */
+.hero-banner {
+  background: linear-gradient(135deg, #0d1117, #161b22);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 2rem;
+  margin-bottom: 2rem;
+  position: relative;
+  overflow: hidden;
+}
+.hero-banner::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  right: -10%;
+  width: 300px;
+  height: 300px;
+  background: radial-gradient(circle, rgba(0,212,255,.08) 0%, transparent 70%);
+  pointer-events: none;
+}

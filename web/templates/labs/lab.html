@@ -1,0 +1,92 @@
+{% extends "base.html" %}
+{% block title %}Lab {{ lab.id }} - {{ lab.title }}{% endblock %}
+
+{% block content %}
+<div class="container-xl">
+  <div class="row g-4">
+
+    <!-- サイドバー -->
+    <div class="col-lg-3">
+      <div class="card sticky-top" style="top:80px">
+        <div class="card-header">
+          <small class="text-muted">ラボ一覧</small>
+        </div>
+        <div class="list-group list-group-flush">
+          {% set labs = [("01","🔍","偵察防御"),("02","🌐","ネットワーク"),("03","🕸️","Webセキュリティ"),("04","📋","ログ解析"),("05","🚨","インシデントIR")] %}
+          {% for lid, icon, name in labs %}
+          <a href="/lab/{{ lid }}"
+             class="list-group-item list-group-item-action bg-dark border-secondary text-{{ 'cyan' if lid == lab.id else 'muted' }} {% if lid == lab.id %}active-lab{% endif %}">
+            {{ icon }} {{ lid }}. {{ name }}
+          </a>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+
+    <!-- メインコンテンツ -->
+    <div class="col-lg-9">
+      <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+        <div>
+          <h2 class="mb-0">{{ lab.icon }} Lab {{ lab.id }}: {{ lab.title }}</h2>
+          <span class="text-muted small"><i class="bi bi-clock me-1"></i>{{ lab.duration }}</span>
+          <span class="ms-2">
+            {% for i in range(lab.difficulty) %}<span class="difficulty-{{ lab.difficulty }}">⭐</span>{% endfor %}
+          </span>
+        </div>
+        <div>
+          {% if completed %}
+          <span class="badge fs-6" style="background:rgba(63,185,80,.2);color:#3fb950">
+            <i class="bi bi-check-circle-fill me-1"></i>完了済み
+          </span>
+          {% else %}
+          <button class="btn btn-cyber" onclick="completeLab('{{ lab.id }}')">
+            <i class="bi bi-check-circle me-1"></i>完了としてマーク
+          </button>
+          {% endif %}
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-body md-content" id="lab-content">
+          {{ content }}
+        </div>
+      </div>
+
+      <div class="d-flex justify-content-between mt-3">
+        {% if lab.id != "01" %}
+        <a href="/lab/0{{ lab.id|int - 1 }}" class="btn btn-outline-cyber">
+          <i class="bi bi-arrow-left me-1"></i>前のラボ
+        </a>
+        {% else %}<div></div>{% endif %}
+        {% if lab.id != "05" %}
+        <a href="/lab/0{{ lab.id|int + 1 }}" class="btn btn-cyber">
+          次のラボ<i class="bi bi-arrow-right ms-1"></i>
+        </a>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+// マークダウンをレンダリング
+const raw = document.getElementById("lab-content").textContent;
+document.getElementById("lab-content").innerHTML = renderMarkdown(raw);
+
+async function completeLab(labId) {
+  const res = await fetch(`/lab/${labId}/complete`, {method:"POST"});
+  const data = await res.json();
+  if (data.ok) {
+    showToast(`ラボ完了！+50pt (合計: ${data.points}pt)`, "success");
+    updatePoints(data.points);
+    setTimeout(() => location.reload(), 1200);
+  }
+}
+</script>
+<style>
+.active-lab { border-left: 3px solid var(--cyan) !important; }
+.list-group-item { border-color: var(--border) !important; }
+</style>
+{% endblock %}

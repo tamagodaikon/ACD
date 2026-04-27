@@ -1,0 +1,374 @@
+{% extends "base.html" %}
+{% block title %}防御ツール{% endblock %}
+
+{% block content %}
+<div class="container-xl">
+  <h2 class="mb-1"><i class="bi bi-tools text-cyan me-2"></i>防御ツール</h2>
+  <p class="text-muted mb-4">自分のシステムのセキュリティを診断するツール集。<strong>自分が所有・許可を得たシステムのみ</strong>に使用してください。</p>
+
+  <!-- タブ -->
+  <ul class="nav nav-tabs mb-4" id="toolTabs">
+    <li class="nav-item">
+      <a class="nav-link active" href="#port-scan" data-bs-toggle="tab">
+        <i class="bi bi-radar me-1"></i>ポートスキャナー
+      </a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link" href="#header-check" data-bs-toggle="tab">
+        <i class="bi bi-shield-check me-1"></i>ヘッダーチェック
+      </a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link" href="#log-analyze" data-bs-toggle="tab">
+        <i class="bi bi-file-earmark-text me-1"></i>ログ解析
+      </a>
+    </li>
+  </ul>
+
+  <div class="tab-content">
+
+    <!-- ポートスキャナー -->
+    <div class="tab-pane fade show active" id="port-scan">
+      <div class="row g-4">
+        <div class="col-lg-4">
+          <div class="tool-panel">
+            <h5><i class="bi bi-radar text-cyan me-2"></i>ポートスキャナー</h5>
+            <p class="text-muted small">開放ポートを確認してセキュリティリスクを特定します。</p>
+            <div class="mb-3">
+              <label class="form-label small">対象ホスト</label>
+              <input type="text" class="form-control" id="ps-target" value="127.0.0.1" placeholder="127.0.0.1">
+              <div class="form-text">プライベートIPまたはlocalhostのみ</div>
+            </div>
+            <div class="mb-3">
+              <label class="form-label small">ポート範囲</label>
+              <input type="text" class="form-control" id="ps-ports" value="1-1024" placeholder="1-1024 または 22,80,443">
+            </div>
+            <button class="btn btn-cyber w-100" onclick="runPortScan()" id="ps-btn">
+              <i class="bi bi-play-fill me-1"></i>スキャン開始
+            </button>
+            <div class="alert alert-warning mt-3 small py-2">
+              <i class="bi bi-exclamation-triangle me-1"></i>
+              無許可のシステムへのスキャンは違法です
+            </div>
+          </div>
+        </div>
+        <div class="col-lg-8">
+          <div class="tool-panel h-100">
+            <div class="d-flex justify-content-between mb-2">
+              <h6 class="mb-0">スキャン結果</h6>
+              <button class="btn btn-sm btn-outline-secondary" onclick="clearOutput('ps-output')">クリア</button>
+            </div>
+            <div class="tool-output" id="ps-output">
+              <span class="text-muted">← スキャンを実行すると結果が表示されます</span>
+            </div>
+            <div id="ps-result-cards" class="row g-2 mt-2"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ヘッダーチェック -->
+    <div class="tab-pane fade" id="header-check">
+      <div class="row g-4">
+        <div class="col-lg-4">
+          <div class="tool-panel">
+            <h5><i class="bi bi-shield-check text-cyan me-2"></i>HTTPヘッダー診断</h5>
+            <p class="text-muted small">WebサーバーのHTTPセキュリティヘッダーをチェックします。</p>
+            <div class="mb-3">
+              <label class="form-label small">URL</label>
+              <input type="url" class="form-control" id="hc-url" placeholder="https://example.com">
+            </div>
+            <button class="btn btn-cyber w-100" onclick="runHeaderCheck()" id="hc-btn">
+              <i class="bi bi-play-fill me-1"></i>診断開始
+            </button>
+            <div class="mt-3 p-2 rounded small" style="background:#21262d;border:1px solid var(--border)">
+              <div class="text-muted mb-1">スコア基準</div>
+              <div class="text-success">A: 80%以上 — 良好</div>
+              <div class="text-info">B: 60%以上 — 改善の余地あり</div>
+              <div class="text-warning">C: 40%以上 — 要対応</div>
+              <div class="text-danger">D: 40%未満 — 危険</div>
+            </div>
+          </div>
+        </div>
+        <div class="col-lg-8">
+          <div class="tool-panel">
+            <h6 class="mb-3">診断結果</h6>
+            <div id="hc-result">
+              <div class="tool-output">
+                <span class="text-muted">← URLを入力して診断を実行してください</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ログ解析 -->
+    <div class="tab-pane fade" id="log-analyze">
+      <div class="row g-4">
+        <div class="col-lg-4">
+          <div class="tool-panel">
+            <h5><i class="bi bi-file-earmark-text text-cyan me-2"></i>ログ解析</h5>
+            <p class="text-muted small">アクセスログから攻撃パターンを自動検出します。</p>
+            <div class="mb-3">
+              <div class="form-check form-switch">
+                <input class="form-check-input" type="checkbox" id="la-use-sample" checked>
+                <label class="form-check-label small" for="la-use-sample">サンプルログを使用</label>
+              </div>
+            </div>
+            <div class="mb-3" id="la-text-area" style="display:none">
+              <label class="form-label small">ログを貼り付け（Apache/Nginx形式）</label>
+              <textarea class="form-control" id="la-log-text" rows="6" placeholder="ログを貼り付けてください..."></textarea>
+            </div>
+            <button class="btn btn-cyber w-100" onclick="runLogAnalyze()" id="la-btn">
+              <i class="bi bi-play-fill me-1"></i>解析開始
+            </button>
+          </div>
+        </div>
+        <div class="col-lg-8">
+          <div class="tool-panel">
+            <h6 class="mb-3">解析結果</h6>
+            <div id="la-result">
+              <div class="tool-output">
+                <span class="text-muted">← 解析を実行すると結果が表示されます</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+// サンプル切り替え
+document.getElementById("la-use-sample").addEventListener("change", e => {
+  document.getElementById("la-text-area").style.display = e.target.checked ? "none" : "block";
+});
+
+function clearOutput(id) {
+  document.getElementById(id).innerHTML = '<span class="text-muted">クリアされました</span>';
+}
+
+function setLoading(btnId, loading) {
+  const btn = document.getElementById(btnId);
+  btn.disabled = loading;
+  btn.innerHTML = loading
+    ? '<span class="spinner-cyber me-2"></span>実行中...'
+    : '<i class="bi bi-play-fill me-1"></i>実行';
+}
+
+// ─── ポートスキャン ───────────────────────────────────
+async function runPortScan() {
+  const target = document.getElementById("ps-target").value.trim();
+  const ports = document.getElementById("ps-ports").value.trim();
+  const out = document.getElementById("ps-output");
+  const cards = document.getElementById("ps-result-cards");
+
+  out.innerHTML = `<span class="info">[*] スキャン中: ${target} (ポート: ${ports})</span>\n`;
+  cards.innerHTML = "";
+  setLoading("ps-btn", true);
+
+  try {
+    const res = await fetch("/api/port-scan", {
+      method: "POST",
+      headers: {"Content-Type":"application/json"},
+      body: JSON.stringify({target, ports})
+    });
+    const data = await res.json();
+
+    if (data.error) {
+      out.innerHTML += `<span class="err">[!] エラー: ${data.error}</span>`;
+      return;
+    }
+
+    out.innerHTML += `<span class="info">[*] スキャン完了: ${data.scanned}ポート調査 (${data.timestamp})</span>\n\n`;
+
+    if (data.open.length === 0) {
+      out.innerHTML += `<span class="ok">[✓] 開放ポートは見つかりませんでした</span>`;
+    } else {
+      out.innerHTML += `<span class="ok">[+] 開放ポート: ${data.open.length}個</span>\n\n`;
+      out.innerHTML += `<span style="color:#8b949e">PORT       SERVICE</span>\n`;
+      data.open.forEach(p => {
+        out.innerHTML += `<span class="ok">${String(p.port).padEnd(10)} ${p.service}</span>\n`;
+        const card = document.createElement("div");
+        card.className = "col-auto";
+        card.innerHTML = `<span class="badge" style="background:#21262d;border:1px solid var(--border);color:var(--cyan);font-size:.85rem">${p.port}/${p.service}</span>`;
+        cards.appendChild(card);
+      });
+    }
+
+    if (data.warnings.length > 0) {
+      out.innerHTML += `\n<span class="warn">[!] セキュリティ警告:</span>\n`;
+      data.warnings.forEach(w => out.innerHTML += `<span class="warn">    ${w}</span>\n`);
+    }
+
+  } catch(e) {
+    out.innerHTML += `<span class="err">[!] 通信エラー: ${e.message}</span>`;
+  } finally {
+    setLoading("ps-btn", false);
+    document.getElementById("ps-btn").innerHTML = '<i class="bi bi-play-fill me-1"></i>スキャン開始';
+  }
+}
+
+// ─── ヘッダーチェック ─────────────────────────────────
+async function runHeaderCheck() {
+  const url = document.getElementById("hc-url").value.trim();
+  const result = document.getElementById("hc-result");
+  if (!url) { showToast("URLを入力してください", "error"); return; }
+
+  result.innerHTML = `<div class="tool-output"><span class="info">[*] チェック中: ${url}</span></div>`;
+  setLoading("hc-btn", true);
+
+  try {
+    const res = await fetch("/api/header-check", {
+      method: "POST",
+      headers: {"Content-Type":"application/json"},
+      body: JSON.stringify({url})
+    });
+    const data = await res.json();
+
+    if (data.error) {
+      result.innerHTML = `<div class="tool-output"><span class="err">[!] ${data.error}</span></div>`;
+      return;
+    }
+
+    const gradeClass = {"A":"grade-a","B":"grade-b","C":"grade-c","D":"grade-d"}[data.grade] || "grade-d";
+    let html = `
+      <div class="row g-3 mb-3">
+        <div class="col-auto text-center">
+          <div class="${gradeClass}">${data.grade}</div>
+          <div class="text-muted small">グレード</div>
+        </div>
+        <div class="col">
+          <div class="fw-bold mb-1">スコア: ${data.score}/${data.max_score} (${data.percentage}%)</div>
+          <div class="progress" style="height:10px">
+            <div class="progress-bar" style="width:${data.percentage}%"></div>
+          </div>
+          <div class="text-muted small mt-1">HTTP ${data.status}</div>
+        </div>
+      </div>
+      <table class="w-100" style="font-size:.875rem">
+        <thead><tr>
+          <th style="color:var(--text-muted);padding:.4rem">ヘッダー</th>
+          <th style="color:var(--text-muted);padding:.4rem">状態</th>
+          <th style="color:var(--text-muted);padding:.4rem">スコア</th>
+        </tr></thead><tbody>`;
+
+    data.headers.forEach(h => {
+      const icon = h.present ? '✅' : '❌';
+      const val = h.present ? `<code style="font-size:.75rem;color:#8b949e">${h.value.substring(0,50)}</code>` : `<span class="text-muted small">${h.desc}</span>`;
+      html += `<tr style="border-top:1px solid var(--border)">
+        <td style="padding:.4rem"><strong>${h.name}</strong></td>
+        <td style="padding:.4rem">${icon} ${val}</td>
+        <td style="padding:.4rem;color:${h.present?'var(--green)':'var(--red)'}">${h.score}/${h.max_score}</td>
+      </tr>`;
+    });
+    html += `</tbody></table>`;
+
+    if (data.dangerous.length > 0) {
+      html += `<div class="mt-3 p-2 rounded" style="background:rgba(248,81,73,.1);border:1px solid rgba(248,81,73,.3)">
+        <div class="text-danger fw-bold small mb-1"><i class="bi bi-exclamation-triangle me-1"></i>要注意ヘッダー</div>`;
+      data.dangerous.forEach(d => {
+        html += `<div class="small"><code>${d.header}: ${d.value}</code> — ${d.issue}</div>`;
+      });
+      html += `</div>`;
+    }
+
+    result.innerHTML = html;
+  } catch(e) {
+    result.innerHTML = `<div class="tool-output"><span class="err">[!] エラー: ${e.message}</span></div>`;
+  } finally {
+    setLoading("hc-btn", false);
+    document.getElementById("hc-btn").innerHTML = '<i class="bi bi-play-fill me-1"></i>診断開始';
+  }
+}
+
+// ─── ログ解析 ─────────────────────────────────────────
+async function runLogAnalyze() {
+  const useSample = document.getElementById("la-use-sample").checked;
+  const logText = document.getElementById("la-log-text").value;
+  const result = document.getElementById("la-result");
+
+  result.innerHTML = `<div class="tool-output"><span class="info">[*] 解析中...</span></div>`;
+  setLoading("la-btn", true);
+
+  try {
+    const res = await fetch("/api/log-analyze", {
+      method: "POST",
+      headers: {"Content-Type":"application/json"},
+      body: JSON.stringify({use_sample: useSample, log_text: logText})
+    });
+    const data = await res.json();
+
+    if (data.error) {
+      result.innerHTML = `<div class="tool-output"><span class="err">[!] ${data.error}</span></div>`;
+      return;
+    }
+
+    let html = `<div class="row g-2 mb-3">
+      <div class="col-6 col-md-3"><div class="stat-card p-2 text-center">
+        <div class="stat-number fs-4">${data.total_lines}</div>
+        <div class="stat-label">総ログ行数</div>
+      </div></div>
+      <div class="col-6 col-md-3"><div class="stat-card p-2 text-center">
+        <div class="stat-number fs-4 text-danger">${data.attack_events.length}</div>
+        <div class="stat-label">攻撃イベント</div>
+      </div></div>
+      <div class="col-6 col-md-3"><div class="stat-card p-2 text-center">
+        <div class="stat-number fs-4 text-warning">${data.brute_force.length}</div>
+        <div class="stat-label">BF疑い</div>
+      </div></div>
+      <div class="col-6 col-md-3"><div class="stat-card p-2 text-center">
+        <div class="stat-number fs-4 text-cyan">${data.suspect_ips.length}</div>
+        <div class="stat-label">不審IP数</div>
+      </div></div>
+    </div>`;
+
+    if (Object.keys(data.attack_summary).length > 0) {
+      html += `<h6 class="text-cyan mb-2">攻撃タイプ別</h6>
+        <div class="d-flex flex-wrap gap-2 mb-3">`;
+      Object.entries(data.attack_summary).sort((a,b) => b[1]-a[1]).forEach(([k,v]) => {
+        html += `<span class="badge" style="background:#21262d;border:1px solid var(--border)">${k}: <strong class="text-danger">${v}件</strong></span>`;
+      });
+      html += `</div>`;
+    }
+
+    if (data.attack_events.length > 0) {
+      html += `<h6 class="text-cyan mb-2">検出された攻撃（上位10件）</h6>
+        <div class="tool-output" style="max-height:250px">`;
+      data.attack_events.slice(0,10).forEach(e => {
+        html += `<div class="mb-1"><span class="text-muted">[${e.time}]</span> <span class="text-danger">${e.ip}</span> <span class="text-warning">${e.attack}</span> <span class="text-muted">${e.method} ${e.path}</span></div>`;
+      });
+      html += `</div>`;
+    }
+
+    if (data.suspect_ips.length > 0) {
+      html += `<h6 class="text-cyan mb-2 mt-3">ブロック推奨IP</h6>
+        <div class="tool-output">`;
+      data.suspect_ips.forEach(ip => {
+        html += `<div class="text-muted">iptables -A INPUT -s <span class="text-danger">${ip}</span> -j DROP</div>`;
+      });
+      html += `</div>`;
+    }
+
+    result.innerHTML = html;
+  } catch(e) {
+    result.innerHTML = `<div class="tool-output"><span class="err">[!] エラー: ${e.message}</span></div>`;
+  } finally {
+    setLoading("la-btn", false);
+    document.getElementById("la-btn").innerHTML = '<i class="bi bi-play-fill me-1"></i>解析開始';
+  }
+}
+
+// URLハッシュでタブ切り替え
+const hash = location.hash;
+if (hash) {
+  const tab = document.querySelector(`[href="${hash}"]`);
+  if (tab) new bootstrap.Tab(tab).show();
+}
+</script>
+{% endblock %}

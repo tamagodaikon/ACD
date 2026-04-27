@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% block title %}CTFチャレンジ{% endblock %}
+
+{% block content %}
+<div class="container-xl">
+  <h2 class="mb-1"><i class="bi bi-flag-fill text-cyan me-2"></i>CTFチャレンジ</h2>
+  <p class="text-muted mb-4">フラグを見つけて提出しましょう。各チャレンジには解説と学習ポイントが含まれています。</p>
+
+  <div class="row g-3">
+    {% for ch in challenges %}
+    {% set done = progress.challenges.get(ch.id, False) %}
+    <div class="col-md-6 col-lg-4">
+      <a href="/challenge/{{ ch.id }}" class="text-decoration-none">
+        <div class="card h-100 {% if done %}lab-completed{% endif %}">
+          <div class="card-body">
+            <div class="d-flex justify-content-between align-items-start mb-2">
+              <span class="badge badge-{{ ch.level }}">{{ ch.level }}</span>
+              {% if done %}
+              <span class="badge" style="background:rgba(63,185,80,.2);color:#3fb950">✓ Solved</span>
+              {% else %}
+              <span class="badge" style="background:rgba(0,212,255,.1);color:var(--cyan)">{{ ch.points }}pt</span>
+              {% endif %}
+            </div>
+            <h5 class="card-title">{{ ch.id }}: {{ ch.title }}</h5>
+            <p class="card-text text-muted small">{{ ch.theme }}</p>
+          </div>
+          <div class="card-footer" style="background:transparent;border-top:1px solid var(--border)">
+            <small class="text-muted">
+              {% if done %}<i class="bi bi-check-circle-fill text-success me-1"></i>完了{% else %}<i class="bi bi-arrow-right-circle me-1"></i>挑戦する{% endif %}
+            </small>
+          </div>
+        </div>
+      </a>
+    </div>
+    {% endfor %}
+  </div>
+
+  <div class="card mt-4">
+    <div class="card-body">
+      <h6 class="text-cyan"><i class="bi bi-info-circle me-2"></i>フラグ形式</h6>
+      <code>ACD{フラグの内容}</code>
+      <p class="text-muted small mt-2 mb-0">
+        各チャレンジのREADMEとツール（ログ解析・ポートスキャナー等）を使って答えを見つけましょう。
+      </p>
+    </div>
+  </div>
+</div>
+{% endblock %}

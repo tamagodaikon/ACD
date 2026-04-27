@@ -1,0 +1,11 @@
+FROM python:3.11-slim
+
+WORKDIR /app
+
+COPY exercises/honeypot.py .
+
+RUN mkdir -p /var/log/honeypot
+
+EXPOSE 2222 2121 9999
+
+CMD ["python", "honeypot.py", "--port", "9999", "--log", "/var/log/honeypot/honeypot.log"]

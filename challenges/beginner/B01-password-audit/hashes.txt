@@ -1,0 +1,13 @@
+# ユーザー名:MD5ハッシュ
+# 注意: 実際のシステムでMD5をパスワード保存に使うのは危険です（学習用）
+
+alice:5f4dcc3b5aa765d61d8327deb882cf99
+bob:827ccb0eea8a706c4c34a16891f84e7b
+charlie:e10adc3949ba59abbe56e057f20f883e
+dave:d8578edf8458ce06fbc5bb76a58c5ca4
+eve:25f9e794323b453885f5181f1b624d0b
+frank:7c4a8d09ca3762af61e59520943dc26
+grace:5e884898da28047151d0e56f8dc6292773603d0d6aabbdd62a11ef721d1542d8
+henry:0d107d09f5bbe40cade3de5c71e9e9b7
+ivan:d077f244def8a70e5ea758bd8352fcd8
+julia:c33367701511b4f6020ec61ded352059

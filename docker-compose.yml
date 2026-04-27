@@ -1,0 +1,96 @@
+version: "3.8"
+
+# ACD 学習環境 - Docker Compose設定
+# 起動: docker-compose up -d
+# 停止: docker-compose down
+# ログ確認: docker-compose logs -f
+
+services:
+
+  # 脆弱なWebアプリ（学習用）
+  vulnerable-webapp:
+    build:
+      context: ./labs/03-web-security/vulnerable-app
+      dockerfile: Dockerfile
+    ports:
+      - "5000:5000"
+    environment:
+      - SAFE_MODE=false
+    networks:
+      - lab-network
+    labels:
+      - "description=学習用脆弱Webアプリ (SQLi, XSS, IDOR)"
+
+  # 安全な版のWebアプリ（比較用）
+  secure-webapp:
+    build:
+      context: ./labs/03-web-security/vulnerable-app
+      dockerfile: Dockerfile
+    ports:
+      - "5001:5000"
+    environment:
+      - SAFE_MODE=true
+    networks:
+      - lab-network
+    labels:
+      - "description=安全版Webアプリ（防御実装済み）"
+
+  # DVWA (Damn Vulnerable Web Application)
+  dvwa:
+    image: vulnerables/web-dvwa:latest
+    ports:
+      - "8080:80"
+    networks:
+      - lab-network
+    labels:
+      - "description=DVWA - 総合的な脆弱性学習環境"
+
+  # Webプロキシ（OWASP ZAP）
+  zap:
+    image: owasp/zap2docker-stable:latest
+    command: zap-webswing.sh
+    ports:
+      - "8090:8090"
+      - "8091:8091"
+    networks:
+      - lab-network
+    labels:
+      - "description=OWASP ZAP Webセキュリティスキャナー"
+
+  # ログ解析環境（Elasticsearch + Kibana 軽量版）
+  log-viewer:
+    image: nginx:alpine
+    ports:
+      - "8888:80"
+    volumes:
+      - ./labs/04-log-analysis/sample-logs:/usr/share/nginx/html/logs:ro
+    networks:
+      - lab-network
+    labels:
+      - "description=サンプルログ閲覧環境"
+
+  # ハニーポット
+  honeypot:
+    build:
+      context: ./labs/01-reconnaissance-defense
+      dockerfile: Dockerfile.honeypot
+    ports:
+      - "2222:2222"   # 偽SSHハニーポット
+      - "2121:2121"   # 偽FTPハニーポット
+      - "9999:9999"   # 汎用ハニーポット
+    volumes:
+      - honeypot-logs:/var/log/honeypot
+    networks:
+      - lab-network
+    labels:
+      - "description=ハニーポット - 不審なアクセスを記録"
+
+networks:
+  lab-network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16
+
+volumes:
+  honeypot-logs:
